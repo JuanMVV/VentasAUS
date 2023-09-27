@@ -1,6 +1,7 @@
 ﻿using CodePulse.API.Data;
 using CodePulse.API.Models.Domain;
 using CodePulse.API.Repositories.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace CodePulse.API.Repositories.Implementation
 {
@@ -17,6 +18,14 @@ namespace CodePulse.API.Repositories.Implementation
             await dbContext.SaveChangesAsync();
             return blogPost;
            
+        }
+
+        public async Task<IEnumerable<BlogPost>> GetAllBlogPosts()
+        {
+            //este metodo solo trae las propiedades para un solo objeto
+            //return await dbContext.BlogPosts.ToListAsync(); 
+
+            return await dbContext.BlogPosts.Include(x => x.Categories).ToListAsync();  
         }
     }
 }

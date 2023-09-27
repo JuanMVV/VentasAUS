@@ -14,5 +14,7 @@ namespace CodePulse.API.Models.Domain
         public string Author { get; set; }
         public bool IsVisible { get; set; }
 
+        public ICollection<Category> Categories { get; set; }
+
     }
 }

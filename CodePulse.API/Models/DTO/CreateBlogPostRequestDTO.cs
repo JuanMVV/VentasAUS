@@ -10,5 +10,9 @@
         public DateTime PublishedDate { get; set; }
         public string Author { get; set; }
         public bool IsVisible { get; set; }
+
+        //cuando creamos un blogpost, tenemos que asignarle una o muchas categorias
+        public Guid[] Categories { get; set; }
+
     } 
 }

@@ -11,5 +11,8 @@
         public DateTime PublishedDate { get; set; }
         public string Author { get; set; }
         public bool IsVisible { get; set; }
+
+        //creamos la propiedad para ver la lista de categorias y la inicializamos
+        public List<CategoryDto> Categories { get; set; } = new List<CategoryDto>();
     }
 }
