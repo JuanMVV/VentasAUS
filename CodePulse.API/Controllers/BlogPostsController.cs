@@ -221,6 +221,34 @@ namespace CodePulse.API.Controllers
 
 
 
+        [HttpDelete]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> DeleteBlogPost([FromRoute] Guid id) 
+        {
+            var deleteBlogPost = await blogPostRepository.DeleteAsync(id);
+            if (deleteBlogPost == null)
+            {
+                return NotFound();
+            }
+
+            //si esta todo ok, debemos convertir el modelo
+            var response = new BlogPostDto
+            {
+                Id = deleteBlogPost.Id,
+                Author = deleteBlogPost.Author,
+                Content = deleteBlogPost.Content,
+                FeaturedImageUrl = deleteBlogPost.FeaturedImageUrl,
+                IsVisible = deleteBlogPost.IsVisible,
+                PublishedDate = deleteBlogPost.PublishedDate,
+                ShortDescription = deleteBlogPost.ShortDescription,
+                Title = deleteBlogPost.Title,
+                UrlHandle = deleteBlogPost.UrlHandle
+            };
+
+            return Ok(response);
+                 
+        }
+
 
 
 
