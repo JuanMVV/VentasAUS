@@ -1,8 +1,11 @@
 using CodePulse.API.Data;
 using CodePulse.API.Repositories.Implementation;
 using CodePulse.API.Repositories.Interface;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,12 +26,59 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("CodePulseConnectionString"));
 });
+//injectamos AuthDbContext, la coneccion a la base pero para los roles y usuarios solamente. Buscamos la cadena en el appsetting.json, generalmente estos datos estan en otra Bd, en ese caso se debe agregar una nueva cadena de coneccion
+builder.Services.AddDbContext<AuthDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("CodePulseConnectionString"));
+});
+
+
+
 
 
 //injectamos los servicios del repositories para poder usarlos dentro del controller
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
+
+//Injectamos identity core basically
+builder.Services.AddIdentityCore<IdentityUser>()
+    .AddRoles<IdentityRole>()
+    .AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>("CodePulse")
+    .AddEntityFrameworkStores<AuthDbContext>()
+    .AddDefaultTokenProviders();
+
+
+//configuramos las identity options
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 1;
+});
+
+
+
+//Agregamos el token 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
+    AddJwtBearer(option =>
+    {
+        option.TokenValidationParameters = new TokenValidationParameters
+        {
+            AuthenticationType = "Jwt",
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
 
 
 var app = builder.Build();
@@ -50,6 +100,10 @@ app.UseCors(options =>
     options.AllowAnyOrigin();
     options.AllowAnyMethod();
 });
+
+
+//agregamos la regla del autentication
+app.UseAuthentication();
 
 app.UseAuthorization();
 

@@ -6,7 +6,8 @@ namespace CodePulse.API.Data
     //hacer la referencia a entityframeworkCore
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions options) : base(options)
+        //cuando tenemos mas de 1 Dbcontext debemos indicar a cual corresponde
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
 
