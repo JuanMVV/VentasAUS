@@ -59,7 +59,6 @@ namespace CodePulse.API.Controllers
 
 
         [HttpGet]
-        [Authorize(Roles = "Reader")]
         public async Task<IActionResult> GetAllCategories()
         {
             var categories = await categoryRepository.GetAllAsync();
@@ -98,7 +97,6 @@ namespace CodePulse.API.Controllers
 
             return Ok(respose);
 
-
         }
 
 
@@ -129,8 +127,6 @@ namespace CodePulse.API.Controllers
                 Name = category.Name,
                 UrlHandle = category.UrlHandle
             };
-
-
 
             return Ok(response);
 
